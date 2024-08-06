@@ -20,8 +20,7 @@ def create_save(polygons: list[Polygon]) -> None:
                         int(node.value.y)
                     ]
                     for node in polygon.vertices
-                ],
-                "filled_area": list(polygon.filled_area)
+                ]
             }
             for polygon in polygons
         ], f)
@@ -35,8 +34,7 @@ def open_save() -> list[Polygon]:
                 vertices=[
                     Vector2(vertex)
                     for vertex in polygon["vertices"]
-                ],
-                filled_area=set(map(tuple, polygon["filled_area"]))
+                ]
             )
             for polygon in json.load(f)
         ]

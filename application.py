@@ -5,12 +5,71 @@ from pygame.math import Vector2
 from pygame.display import set_mode, set_caption
 
 from kit.game import Game
-from kit.math import clamp
+from kit.math import clamp, vector2tuple
 from kit.input import Keyboard
 from kit.graphics import Color, random_color, scaled_lines, scaled_polygon
 
 from polygon import Polygon
 from serialization import create_save, open_save
+
+
+def connect_points(pos_a: tuple[int, int], pos_b: tuple[int, int]) -> list[Vector2]:
+    points = []
+
+    x1, y1 = pos_a
+    x2, y2 = pos_b
+    dx = abs(x2 - x1)
+    dy = abs(y2 - y1)
+
+    sx = 1 if x1 < x2 else -1
+    sy = 1 if y1 < y2 else -1
+
+    err = dx - dy
+
+    while True:
+        e2 = 2 * err
+
+        if e2 > -dy:
+            err -= dy
+            x1 += sx
+
+        if e2 < dx:
+            err += dx
+            y1 += sy
+
+        if x1 == x2 and y1 == y2:
+            break
+        
+        points.append(Vector2(x1, y1))
+
+    return points
+
+
+def check_points_connection(points: list[Vector2]) -> None:
+    j = 0
+    length = len(points)
+    points_copy = points.copy()
+
+    for i, point in enumerate(points_copy):
+        next_point = points_copy[(i + 1) % length]
+
+        distance = point.distance_squared_to(next_point)
+
+        if distance > 2:
+            connected_points = connect_points(point, next_point)
+            points = points[:i + j + 1] + connected_points + points[i + j + 1:]
+
+            j += len(connected_points)
+
+    new_points = []
+
+    for i, point in enumerate(points):
+        if point in new_points:
+            continue
+
+        new_points.append(point)
+
+    return new_points
 
 
 class Application(Game):
@@ -37,9 +96,10 @@ class Application(Game):
 
         if mouse.get_pressed()[0]:
             point = Vector2(mouse.get_pos() - Vector2(self.screen.get_size()) / 2) / self.zoom - self.offset
+            point //= 1
 
             if point not in self.points:
-                self.points.append(point // 1)
+                self.points.append(point)
         if mouse.get_pressed()[2]:
             self.points = []
 
@@ -62,7 +122,9 @@ class Application(Game):
         self.zoom = clamp(self.zoom, 0.25, 256)
 
         if Keyboard.get_clicked(pg.K_v):
-            self.polygons.append(Polygon(random_color(50, 205), self.points))
+            points = check_points_connection(self.points)
+
+            self.polygons.append(Polygon(random_color(50, 205), points))
             self.points = []
 
         if Keyboard.get_clicked(pg.K_c):
@@ -71,6 +133,8 @@ class Application(Game):
             self.polygons = open_save()
         
         if Keyboard.get_clicked(pg.K_e):
+            self.polygons[0].expand()
+        if Keyboard.get_pressed(pg.K_r):
             self.polygons[0].expand()
         if Keyboard.get_clicked(pg.K_p):
             self.draw_contours = not self.draw_contours

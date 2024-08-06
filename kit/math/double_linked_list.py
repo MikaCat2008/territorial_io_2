@@ -67,7 +67,7 @@ class DoubleLinkedList(Generic[T]):
                 self.append_end(item)
 
     def append_start(self, value: T) -> DoubleLinkedNode:
-        new_node = DoubleLinkedNode(value, None, self.last_node)
+        new_node = DoubleLinkedNode(value, None, self.first_node)
         
         if self.length == 0:
             self.last_node = new_node
@@ -81,7 +81,7 @@ class DoubleLinkedList(Generic[T]):
         return new_node
 
     def append_end(self, value: T) -> DoubleLinkedNode:
-        new_node = DoubleLinkedNode(value, self.first_node, None)
+        new_node = DoubleLinkedNode(value, self.last_node, None)
 
         if self.length == 0:
             self.last_node = new_node
@@ -109,26 +109,32 @@ class DoubleLinkedList(Generic[T]):
 
         return new_node
     
-    def insert_after(self, value: T, node: DoubleLinkedNode) -> DoubleLinkedNode:
-        new_node = DoubleLinkedNode(value, node.before_node, node.after_node)
+    # def insert_after(self, value: T, node: DoubleLinkedNode) -> DoubleLinkedNode:
+    #     new_node = DoubleLinkedNode(value, node.before_node, node.after_node)
 
-        if node.after_node is not None:
-            node.after_node.before_node = new_node
+    #     if node.after_node is not None:
+    #         node.after_node.before_node = new_node
 
-        node.after_node = new_node
+    #     node.after_node = new_node
 
-        if node is self.last_node_node:
-            self.last_node = new_node
+    #     if node is self.last_node_node:
+    #         self.last_node = new_node
 
-        self.length += 1
+    #     self.length += 1
 
-        return new_node
-    
+    #     return new_node
+
+    def flip_nodes(self, node_a: DoubleLinkedNode, node_b: DoubleLinkedNode) -> None:
+        value = node_a.value
+
+        node_a.value = node_b.value
+        node_b.value = value
+
     def remove_node(self, node: DoubleLinkedNode) -> None:
         if node is self.last_node:
-            self.last_node = None
+            self.last_node = node.before_node
         if node is self.first_node:
-            self.first_node = None
+            self.first_node = node.after_node
         
         if node.after_node:
             node.after_node.before_node = node.before_node
@@ -138,10 +144,10 @@ class DoubleLinkedList(Generic[T]):
         self.length -= 1
 
     def to_list(self) -> Iterable[T]:
-        return [ item.value for item in self ]
+        return [ item.value if item is not None else None for item in self ]
 
     def __iter__(self) -> LinkedListIterator[DoubleLinkedNode[T]]:
         return LinkedListIterator[T](self)
 
     def __repr__(self) -> str:
-        return f"DoubleLinkedList({', '.join(str(item.value) for item in self)})"
+        return f"DoubleLinkedList({', '.join(str(item) for item in self)})"
