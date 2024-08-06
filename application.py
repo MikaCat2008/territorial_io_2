@@ -1,11 +1,16 @@
 import pygame as pg
+
+pg.init()
+pg.font.init()
+
 from pygame import mouse
-from pygame.draw import lines
+from pygame.font import SysFont
 from pygame.math import Vector2
+from pygame.draw import lines, circle
 from pygame.display import set_mode, set_caption
 
 from kit.game import Game
-from kit.math import clamp, vector2tuple
+from kit.math import clamp
 from kit.input import Keyboard
 from kit.graphics import Color, random_color, scaled_lines, scaled_polygon
 
@@ -91,6 +96,8 @@ class Application(Game):
         self.points = []
         self.polygons = []
 
+        self.font = SysFont(None, 24)
+
     def update(self) -> None:
         super().update()
 
@@ -161,10 +168,18 @@ class Application(Game):
             )
 
             if self.draw_contours:
-                lines(self.screen, (255, 255, 255), False, [
+                _vertices = [
                     self.zoom * (vertex + Vector2(0.5) + self.offset) + Vector2(self.screen.get_size()) / 2
                     for vertex in vertices
-                ])
+                ]
+
+                for i, vertex_a in enumerate(_vertices):
+                    vertex_b = _vertices[(i + 1) % len(vertices)]
+
+                    lines(self.screen, polygon.vertices_colors[i], False, [vertex_a, vertex_b])
+                    circle(self.screen, (255, 255, 255), vertex_a, self.zoom / 10)
+                    text = self.font.render(str(i), False, (0, 0, 0))
+                    self.screen.blit(text, vertex_a - Vector2(text.get_size()) / 2)
 
         if len(self.points) > 1:
             scaled_lines(

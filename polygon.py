@@ -1,7 +1,7 @@
 from pygame.math import Vector2
 
-from kit.math import min_vector, max_vector, vector2tuple, DoubleLinkedList
-from kit.graphics import Color
+from kit.math import min_vector, max_vector, vector2tuple, DoubleLinkedList, DoubleLinkedNode
+from kit.graphics import Color, random_color
 
 
 def is_point_in_polygon(point: tuple[int, int], polygon: list[Vector2]):
@@ -33,6 +33,8 @@ class Polygon:
         self.color = color
         self.vertices = DoubleLinkedList[Vector2](vertices)
         self.filled_area = set([vector2tuple(vertex) for vertex in vertices])
+
+        self.vertices_colors = [random_color() for _ in range(len(vertices))]
 
         self.fill()
 
@@ -74,29 +76,27 @@ class Polygon:
 
             self.vertices.remove_node(node)
 
-        skip = False
-
         for node in self.vertices:
-            if skip:
-                skip = False
-                
-                continue
+            self.check_distance(node)
 
-            node_a = node.after_node
+        print(self.vertices, self.vertices.last_node, self.vertices.last_node.after_node)
 
-            if node_a is None:
-                continue
+        self.vertices_colors = [random_color() for _ in range(len(self.vertices.to_list()))]
 
-            distance = node.value.distance_squared_to(node_a.value)
+    def check_distance(self, node: DoubleLinkedNode) -> None:
+        node_a = node.after_node
 
-            if distance <= 2:
-                continue
+        if node_a is None:
+            return
 
-            node_b = node_a.after_node
+        distance = node.value.distance_squared_to(node_a.value)
 
-            if node_b is None:
-                continue
+        if distance <= 2:
+            return
 
-            self.vertices.flip_nodes(node_a, node_b)
+        node_b = node_a.after_node
 
-            skip = True
+        if node_b is None:
+            return
+
+        self.vertices.flip_nodes(node_a, node_b)

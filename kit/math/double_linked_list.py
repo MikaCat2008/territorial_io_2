@@ -66,22 +66,22 @@ class DoubleLinkedList(Generic[T]):
             for item in iterable:
                 self.append_end(item)
 
-    def append_start(self, value: T) -> DoubleLinkedNode:
-        new_node = DoubleLinkedNode(value, None, self.first_node)
+    # def append_start(self, value: T) -> DoubleLinkedNode:
+    #     new_node = DoubleLinkedNode(value, self.last_node, self.first_node)
         
-        if self.length == 0:
-            self.last_node = new_node
-            self.first_node = new_node
-        else:
-            self.first_node.before_node = new_node
-            self.first_node = new_node
+    #     if self.length == 0:
+    #         self.last_node = new_node
+    #         self.first_node = new_node
+    #     else:
+    #         self.first_node.before_node = new_node
+    #         self.first_node = new_node
 
-        self.length += 1
+    #     self.length += 1
 
-        return new_node
+    #     return new_node
 
     def append_end(self, value: T) -> DoubleLinkedNode:
-        new_node = DoubleLinkedNode(value, self.last_node, None)
+        new_node = DoubleLinkedNode(value, self.last_node, self.first_node)
 
         if self.length == 0:
             self.last_node = new_node
@@ -104,6 +104,7 @@ class DoubleLinkedList(Generic[T]):
 
         if node is self.first_node:
             self.first_node = new_node
+            self.last_node.after_node = new_node
 
         self.length += 1
 

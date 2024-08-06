@@ -5,7 +5,8 @@ from .converter import (
     vector2tuple as vector2tuple
 )
 from .double_linked_list import (
-    DoubleLinkedList as DoubleLinkedList
+    DoubleLinkedList as DoubleLinkedList,
+    DoubleLinkedNode as DoubleLinkedNode
 )
 
 
