@@ -2,6 +2,7 @@ from typing import Optional
 from threading import Thread
 
 import numpy as np
+from pygame.math import Vector2
 from pygame.surface import Surface
 
 from kit.utils import in_thread
@@ -36,6 +37,9 @@ class Player:
 
     def update(self) -> None:
         if self._ticks % 5 == 0:
+            if self._ticks > 100:
+                return
+            
             thread = self._expansion_thread
 
             if thread is None or not thread.is_alive():
@@ -43,5 +47,5 @@ class Player:
 
         self._ticks += 1
 
-    def draw(self, screen: Surface) -> None:
-        self.surface.blit(screen, 5)
+    def draw(self, screen: Surface, zoom: float, offset: Vector2) -> None:
+        self.surface.blit(screen, zoom, offset.x, offset.y)

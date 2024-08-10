@@ -12,6 +12,7 @@ class PoolObject:
     id: int
 
     _pool: ClassVar[Optional[PoolType]] = None
+    _next_id: int = 0
     _instances: ClassVar[dict[int, "PoolObject"]] = {}
 
     def __init__(self, id: int) -> None:
@@ -24,7 +25,8 @@ class PoolObject:
 
     @classmethod
     def link(cls: Type[T]) -> T:
-        id = len(cls._instances)
+        id = cls._next_id
+        cls._next_id += 1
 
         cls._pool.apply(cls.new, (id, ))
         
