@@ -66,20 +66,6 @@ class DoubleLinkedList(Generic[T]):
             for item in iterable:
                 self.append_end(item)
 
-    # def append_start(self, value: T) -> DoubleLinkedNode:
-    #     new_node = DoubleLinkedNode(value, self.last_node, self.first_node)
-        
-    #     if self.length == 0:
-    #         self.last_node = new_node
-    #         self.first_node = new_node
-    #     else:
-    #         self.first_node.before_node = new_node
-    #         self.first_node = new_node
-
-    #     self.length += 1
-
-    #     return new_node
-
     def append_end(self, value: T) -> DoubleLinkedNode:
         new_node = DoubleLinkedNode(value, self.last_node, self.first_node)
 
@@ -89,13 +75,14 @@ class DoubleLinkedList(Generic[T]):
         else:
             self.last_node.after_node = new_node
             self.last_node = new_node
+            self.first_node.before_node = new_node
 
         self.length += 1
 
         return new_node
 
     def insert_before(self, value: T, node: DoubleLinkedNode) -> DoubleLinkedNode:
-        new_node = DoubleLinkedNode(value, node.before_node, node.after_node)
+        new_node = DoubleLinkedNode(value, node.before_node, node)
 
         if node.before_node is not None:
             node.before_node.after_node = new_node
@@ -109,21 +96,6 @@ class DoubleLinkedList(Generic[T]):
         self.length += 1
 
         return new_node
-    
-    # def insert_after(self, value: T, node: DoubleLinkedNode) -> DoubleLinkedNode:
-    #     new_node = DoubleLinkedNode(value, node.before_node, node.after_node)
-
-    #     if node.after_node is not None:
-    #         node.after_node.before_node = new_node
-
-    #     node.after_node = new_node
-
-    #     if node is self.last_node_node:
-    #         self.last_node = new_node
-
-    #     self.length += 1
-
-    #     return new_node
 
     def flip_nodes(self, node_a: DoubleLinkedNode, node_b: DoubleLinkedNode) -> None:
         value = node_a.value
@@ -152,3 +124,14 @@ class DoubleLinkedList(Generic[T]):
 
     def __repr__(self) -> str:
         return f"DoubleLinkedList({', '.join(str(item) for item in self)})"
+
+
+# from pygame.math import Vector2
+
+# dl_list = DoubleLinkedList[Vector2]([
+#     Vector2(0, 0), Vector2(2, 2)
+# ])
+# dl_list.insert_before(Vector2(1, 1), dl_list.last_node)
+# dl_list.remove_node(dl_list.first_node)
+
+# print(dl_list.last_node, dl_list.first_node)

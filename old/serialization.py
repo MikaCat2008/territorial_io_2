@@ -2,7 +2,7 @@ import json
 
 from pygame.math import Vector2, Vector3
 
-from polygon import Polygon
+from old.polygon import Polygon
 
 
 def create_save(polygons: list[Polygon]) -> None:
@@ -23,7 +23,7 @@ def create_save(polygons: list[Polygon]) -> None:
                 ]
             }
             for polygon in polygons
-        ], f)
+        ], f, indent=4)
 
 
 def open_save() -> list[Polygon]:

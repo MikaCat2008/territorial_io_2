@@ -59,10 +59,10 @@ class Polygon:
                     self.filled_area.add(point)
 
     def expand(self) -> None:
+        directions = [ Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0) ]
+
         for node in self.vertices:
             vertex = node.value
-
-            directions = [ Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0) ]
 
             for direction in directions:
                 new_vertex = vertex + direction
@@ -74,12 +74,20 @@ class Polygon:
                 self.vertices.insert_before(new_vertex, node)
                 self.filled_area.add(new_vertex_tuple)
 
-            self.vertices.remove_node(node)
+        for node in self.vertices:
+            vertex = node.value
+
+            for direction in directions:
+                new_vertex = vertex + direction
+                new_vertex_tuple = vector2tuple(new_vertex)
+
+                if new_vertex_tuple not in self.filled_area:
+                    break
+            else:
+                self.vertices.remove_node(node)
 
         for node in self.vertices:
             self.check_distance(node)
-
-        print(self.vertices, self.vertices.last_node, self.vertices.last_node.after_node)
 
         self.vertices_colors = [random_color() for _ in range(len(self.vertices.to_list()))]
 
@@ -98,5 +106,7 @@ class Polygon:
 
         if node_b is None:
             return
-
+        
+        print(node, node_a, node_b)
+        
         self.vertices.flip_nodes(node_a, node_b)
