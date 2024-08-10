@@ -21,29 +21,45 @@ class AutoSurface:
         self._rect = None
         self._surface = None
 
-    def blit(self, screen: Surface, scale: float = 1) -> None:
+    def blit(self, screen: Surface, scale=1, offset_x=0, offset_y=0) -> None:
         if self._rect is None or self._surface is None:
             return
 
-        screen_w, screen_h = screen.get_size()
-        screen_w, screen_h = screen_w // scale, screen_h // scale
+        screen_size = Vector2(screen.get_size())
+        unscaled_screen_size = screen_size / scale
+
+        offset_x -= unscaled_screen_size.x / 2
+        offset_y -= unscaled_screen_size.y / 2
+
+        min_x, min_y = Vector2(self._rect.topleft)
+        max_x, max_y = Vector2(self._rect.bottomright)
+
+        min_x = max(min_x, offset_x // 1) - 1
+        min_y = max(min_y, offset_y // 1) - 1
+
+        max_x = min(max_x, unscaled_screen_size.x // 1 + offset_x // 1) + 2
+        max_y = min(max_y, unscaled_screen_size.y // 1 + offset_y // 1) + 2
+
+        size = max_x - min_x, max_y - min_y
+
+        if size[0] < 1 or size[1] < 1:
+            return
         
-        min_x, min_y = self._rect.topleft
-        max_x, max_y = self._rect.bottomright
-
-        min_x = max(min_x, 0)
-        min_y = max(min_y, 0)
-
-        max_x = min(max_x, screen_w)
-        max_y = min(max_y, screen_h)
-
-        surface = Surface((max_x - min_x + 1, max_y - min_y + 1))
+        surface = Surface(size)
         surface.set_colorkey((0, 0, 0))
-        surface.blit(self._surface.copy(), (self._rect.left - min_x, self._rect.top - min_y))
+        surface.blit(
+            self._surface.copy(), 
+            (self._rect.left - min_x, self._rect.top - min_y)
+        )
+
+        surface = scale_by(surface, (scale, scale))
+        surface.set_colorkey((0, 0, 0))
 
         screen.blit(
-            scale_by(surface, (scale, scale)), 
-            (min_x * scale, min_y * scale)
+            surface, (
+                min_x * scale - offset_x * scale, 
+                min_y * scale - offset_y * scale
+            )
         )
 
     def expand_rect(self, x: int, y: int, rect: Optional[Rect]) -> Rect:
