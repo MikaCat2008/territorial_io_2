@@ -38,7 +38,7 @@ class Territory(PoolEntity):
         else:
             self.contour = np.vstack(self.contour, contour_points)
 
-    def expanse(self, expanse_id: int) -> Optional[tuple[np.ndarray, bool]]:
+    def expanse(self, expanse_id: int) -> Optional[tuple[np.ndarray, int, bool]]:
         if len(self.contour) == 0:
             return
 
@@ -92,10 +92,10 @@ class Territory(PoolEntity):
 
         self.contour = np.array(list(contour_set))
 
-        if expanse_id and len(other_contour_set) == 0:
-            return new_points, expanse_id
+        if expanse_id:
+            return new_points, expanse_id, len(other_contour_set) == 0
         else:
-            return new_points, 0
+            return new_points, 0, False
 
     def delete(self) -> None:
         self.world.remove_territory(self)

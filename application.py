@@ -35,16 +35,16 @@ class Application(Game):
         super().__init__()
 
         self.screen = set_mode((1500, 750))
-        self.camera = Camera(self.screen, 0.7, Vector2(1000, 500))
+        self.camera = Camera(self.screen, 1, Vector2(500, 250))
 
         self.manager = PoolManager()
         self.manager.start()
-        self.world = World(2000, 1000, {}, self.manager)
+        self.world = World(1000, 500, {}, self.manager)
 
         for i in range(100):
             self.world.add_player(
-                Player(i, random_color(50, 205), self.world, self.manager)
-            ).load_territory(init_points(randint(0, 1999), randint(0, 999)))
+                Player(i, f"Player{i + 1}", random_color(50, 205), self.world, self.manager)
+            ).load_territory(init_points(randint(0, 999), randint(0, 499)))
 
         self.selected_id = None
         
@@ -106,6 +106,9 @@ class Application(Game):
 
     def draw(self) -> None:
         self.world.draw(self.camera, self.selected_id)
+
+        for player in self.world.players.values():
+            player.draw(self.camera)
 
         set_caption(f"{self.clock.get_fps():.2f} fps")
 

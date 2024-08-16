@@ -42,7 +42,7 @@ class Camera:
 
         return mouse_pos
 
-    def blit(self, surface: Surface, rect: Optional[Rect] = None) -> None:
+    def blit(self, surface: Surface, rect: Optional[Rect] = None, scale: bool = True) -> None:
         offset = self.position.copy()
 
         screen_size = Vector2(self.screen.get_size())
@@ -57,19 +57,21 @@ class Camera:
             topleft = Vector2(rect.topleft)
             bottomright = Vector2(rect.bottomright)
 
-        min_pos = max_vector(topleft, round_vector(offset)) - Vector2(1)
-        max_pos = min_vector(bottomright, round_vector(unscaled_screen_size + offset)) + Vector2(2)
+        if scale:
+            min_pos = max_vector(topleft, round_vector(offset)) - Vector2(1)
+            max_pos = min_vector(bottomright, round_vector(unscaled_screen_size + offset)) + Vector2(2)
 
-        size = max_pos.x - min_pos.x, max_pos.y - min_pos.y
+            size = max_pos.x - min_pos.x, max_pos.y - min_pos.y
 
-        if size[0] < 1 or size[1] < 1:
-            return
+            if size[0] < 1 or size[1] < 1:
+                return
+            
+            _surface = Surface(size)
+            _surface.blit(surface, topleft - min_pos)
         
-        _surface = Surface(size)
-        _surface.blit(surface, topleft - min_pos)
-
-        _surface = scale_by(_surface, (self.zoom, self.zoom))
-
-        self.screen.blit(
-            _surface, min_pos * self.zoom - offset * self.zoom
-        )
+            self.screen.blit(
+                scale_by(_surface, (self.zoom, self.zoom)),
+                (min_pos - offset) * self.zoom
+            )
+        else:
+            self.screen.blit(surface, (topleft - offset) * self.zoom)

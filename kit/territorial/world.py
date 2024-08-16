@@ -74,7 +74,7 @@ class World:
 
         self._ticks = 0
         self._get_contours_future = None
-        self._get_contours_cooldown = 1
+        self._get_contours_cooldown = 2
 
         for player in players:
             self.add_player(player)
@@ -97,6 +97,10 @@ class World:
     def _get_contours_callback(self, future: PoolFuture) -> None:
         self.contours = future.result
 
+        for territory_id, contour in self.contours:
+            player = self.players[territory_id]
+            player.contour = contour
+
     def draw(self, camera: Camera, selected_territory_id: int) -> None:        
         future = self._get_contours_future
         surface = self.surface.copy()
@@ -110,8 +114,9 @@ class World:
                 if territory_id == selected_territory_id:
                     color = Color.BLACK
                 else:
-                    color = self.players[territory_id].color - Color(20)
-            
+                    player = self.players[territory_id]
+                    color = player.color - Color(20)
+
                 blit_points(surface, color, contour)
 
         camera.blit(surface)
