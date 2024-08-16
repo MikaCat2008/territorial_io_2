@@ -6,28 +6,32 @@ from pygame.event import get as get_events
 from pygame.display import flip
 from pygame.surface import Surface
 
-from kit.input import Keyboard
+from kit.input import Mouse, Keyboard
 
 
 class Game:
+    ticks: int
     clock: Clock
+    screen: Optional[Surface]
     max_fps: int
 
-    screen: Optional[Surface]
-
     def __init__(self) -> None:
-        self.clock = Clock()
         self.ticks = 0
-        self.max_fps = 60
-
+        self.clock = Clock()
         self.screen = None
+        self.max_fps = 60
+        
+        Mouse()
+        Keyboard()
 
     def initilize(self) -> None:
         Keyboard()
 
     def update(self) -> None:
-        Keyboard.update()
         self.ticks += 1
+        
+        Mouse.update()
+        Keyboard.update()
 
     def draw(self) -> None:
         flip()
@@ -40,6 +44,9 @@ class Game:
             for event in get_events():
                 if event.type == pg.QUIT:
                     exit()
+
+                if event.type == pg.MOUSEWHEEL:
+                    Mouse.set_wheel(event.y)
 
             self.update()
             self.draw()
